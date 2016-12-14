@@ -1,8 +1,3 @@
-
-        
-# To run the code without primary reserve and rectify infinite loop problem
-# To update the charging and discharging Price of the MarketBatteryStorage
-
 #========================Functions============================================#
 
 #***********************Source_MarketBatteryStorage_Functions***********************#
@@ -551,72 +546,29 @@ StandardConsumingDevicesNewPower=list()
 DSMNewPower=list()
 CommonGridNewPower=list()
 
-#Permanent Needs for four time intervals
-#StandardConsumingDevices_Power=get_StandardConsumingDevices_Power()
-#DSM_Power=get_DSM_Power()
-
-#Permanent Offers for four time intervals
-#MarketSolarGeneratingUnit_Power=get_MarketSolarGeneratingUnit_Power()
-#MarketCogenerationUnitPower=get_KWK_Power()
-
-#Conditional Needs or Offers
-#Common_Grid_Power=get_Common_Grid_Power() # negative sign in Power means that grid will acts as load and postive sign means grid has excess of electricity and will act as source
-#Battery_Power=get_Battery_Power() # Battery Power remains same all the time (assumption)
-#Battery_Capacity=get_Battery_SOC() # Only first entry of this array will be used in code. The rest will be updated after each time interval.
-#Reserve_Status=[0,0,0,0,1,1,1,1] # Reserve status for grid
-
-#Permanent Needs for four time intervals
-#StandardConsumingDevicesPower=[15,0,0,0,0,0,0,0]
-#DSMPower=[5,0,0,0,0,0,0,0]
-
-#Permanent Offers for four time intervals
-#MarketSolarGeneratingUnit_Power=[0,0,0,0,0,0,0,0]
-#MarketCogenerationUnitPower=[0,0,0,0,0,0,0,0]
-
-#Conditional Needs or Offers
-#Common_Grid_Power=[250,250,-500,-250,500,-1,-190,200] # negative sign in Power means that grid will acts as load and postive sign means grid has excess of electricity and will act as source
-#Battery_Power=[250,250,250,250,250,250,250,250] # Battery Power remains same all the time (assumption)
-#Battery_Capacity=[0,80,20,0,0,80,20,0] # Only first entry of this array will be used in code. The rest will be updated after each time interval.
-#Reserve_Status=[0,0,0,0,0,0,0,0] # Reserve status for grid
-
-
-
-from openpyxl import load_workbook
-from openpyxl import Workbook
-
-
-
 
 DischargeFactor=99 # How much the MarketBatteryStorage should be discharged while supporting the grid
-N=10.0 # no of iterations  (to be written in floating form) 
+N=100.0 # no of iterations  (to be written in floating form) 
 x=25# break point
 hours=1.0
 division=1.0
 reserved_for_grid=0
 EEx.PrimaryReserveStatus=0
-
-import os
-import time
-
-
 sec=0
 min=0
 hour=0
 t=None
 
-
-
-
-from openpyxl import load_workbook
-from openpyxl import Workbook
-#from VPPhouseholdsExcelInterfaceActualProfits import *
 from Classes import *
 from Initialization import *
+import os
+import time
+from openpyxl import load_workbook
+from openpyxl import Workbook
 
 
 while sec<=60:
     os.system('cls')
-    #print (hour,'Hours',min, 'Minutes', sec, 'Seconds')
     print hour ,':', min, ':', sec
     time.sleep(1)
     sec+=1
@@ -634,7 +586,6 @@ while sec<=60:
         MaxCols=ws.max_column-1
         sheet=wb.get_sheet_by_name('Data')
         a=sheet.cell(row=4,column=2)
-        #print MaxRows,MaxCols
         i=t+4
         if i<MaxRows+4:
             hour=sheet.cell(row=i,column=1).value
@@ -673,15 +624,8 @@ while sec<=60:
         else:
             print 'No input is given'
             break
-        
-
-
-
-    try:
-        print 'iteration number:',t,'\nTime',t*15,'minutes'
     
-    except:
-        pass
+    print 'iteration number:',t,'\nTime',t*15,'minutes'
     needs=([StandardConsumingDevices,DSM,MarketBatteryStorage,CommonGrid1]) 
     offers = ([MarketSolarGeneratingUnit,MarketCogenerationUnit,MarketBatteryStorage,CommonGrid1]) 
     sorting_needs_and_offers(needs,offers)
@@ -691,6 +635,8 @@ while sec<=60:
     temp_offer=None
     count=0 
     print 'Primary Reserve Status', EEx.PrimaryReserveStatus,'Reserved for Grid', reserved_for_grid
+
+#==================Calculation of Household Profits on the basis of Forecast==================================#
     
     try:
         if MarketBatteryStorage in offers:   
@@ -708,10 +654,10 @@ while sec<=60:
             
             
             elif (-(DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)+((MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division))<0.0:
-                if DSM.Price >=CommonGrid1.Price: 
+                if DSM.Price >=CommonGrid1.Price and CommonGrid1 not in needs: 
                     print 'B'
                     H1.ProfitNormal=30.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
-                elif DSM.Price<CommonGrid1.Price:
+                elif DSM.Price<CommonGrid1.Price and CommonGrid1 not in needs:
                     print 'C'                
                     H1.ProfitNormal=30.0*(hours/division)*(-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
                 print DSM.Power*hours/division,StandardConsumingDevices.Power*hours/division,MarketSolarGeneratingUnit.Power*hours/division,MarketCogenerationUnit.Power*hours/division,((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division)
@@ -723,10 +669,10 @@ while sec<=60:
             if (-(DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)-((100-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division))<0.0:   
                 print 'B'
                 if MarketBatteryStorage.PercentageCurrentCapacity is 0:
-                    if DSM.Price >=CommonGrid1.Price: 
+                    if DSM.Price >=CommonGrid1.Price and CommonGrid1 not in needs: 
                         print 'A'
                         H1.ProfitNormal=-30.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
-                    elif DSM.Price<CommonGrid1.Price:
+                    elif DSM.Price<CommonGrid1.Price and CommonGrid1 not in needs:
                         print 'B'                
                         H1.ProfitNormal=-30.0*(hours/division)*(-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
                     print DSM.Power*hours/division,StandardConsumingDevices.Power*hours/division,MarketSolarGeneratingUnit.Power*hours/division,MarketCogenerationUnit.Power*hours/division,((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division)
@@ -740,9 +686,13 @@ while sec<=60:
             
                 
     except:
-        print 'EXCEPT'
+        print 'Household Profit were not calculated'
         pass
-                
+    
+#==================Calculation of Household Profits on the basis of Forecast==================================#
+    
+#===========================Merit Order Based Algorithm=========================================================#
+            
     for need in needs:
         if need.Name is 'CommonGrid':
             need.Power=need.Power*-1
@@ -756,13 +706,13 @@ while sec<=60:
         print 'iteration_var',iteration_var # to allow all the Power sources to be used to meet load demands
         
         while n < (int(N)) and need.Power>0.1 and iteration_var<(int(N+20)):
-            
             print 'n=',n, 'reserved_for_grid',reserved_for_grid
-
+            
             if (MarketBatteryStorage.Power >=0 and MarketBatteryStorage.PercentageCurrentCapacity>=0.0) or (MarketSolarGeneratingUnit.Power or MarketCogenerationUnit.Power or CommonGrid1.Power):
+                print 'some sources are available to meet load demand' 
                 pass
             else:
-                print 'all sources are depleted'
+                print 'all sources are depleted, demand cannot be met'
                 break
             
             if count<len(offers):
@@ -771,16 +721,16 @@ while sec<=60:
  #=====================================For Primary Reserve Settings===============================================#               
 
                       
-            if need.Name is 'MarketBatteryStorage' and EEx.PrimaryReserveStatus is 1 and offer.Name is not 'CommonGrid':
+            if need.Name is 'MarketBatteryStorage' and EEx.PrimaryReserveStatus and offer.Name is not 'CommonGrid':
                 if need.PercentageCurrentCapacity>79:
                     print 'offer Name',offer.Name
-                    print 'Primary Reserve Mode, Battery will act as reserve for grid in next interval'
+                    print 'Primary Reserve Mode, Battery will not be charged more than 80% and will act as reserve for grid in next interval'
                     reserved_for_grid=1
                     if offer.Name is not 'CommonGrid':
                         break
                     
                 
-            elif offer.Name is 'MarketBatteryStorage' and EEx.PrimaryReserveStatus is 1:
+            elif offer.Name is 'MarketBatteryStorage' and EEx.PrimaryReserveStatus:
                 print offer.PercentageCurrentCapacity
                 if offer.PercentageCurrentCapacity<21:
                     print 'Primary Reserve Mode, Battery will act as offer for grid in next interval'
@@ -790,19 +740,20 @@ while sec<=60:
                             count=count+1
                             offer=offers[count]
                         reserved_for_grid =1
-                        print 'updation'
+                        print 'updation of offer'
                         n=0
                         continue
-            elif MarketBatteryStorage.PercentageCurrentCapacity>21 and MarketBatteryStorage.PercentageCurrentCapacity<79 and EEx.PrimaryReserveStatus is 1:
+                    
+            elif MarketBatteryStorage.PercentageCurrentCapacity>21 and MarketBatteryStorage.PercentageCurrentCapacity<79 and EEx.PrimaryReserveStatus:
                     if (StandardConsumingDevices.Power is 0 or DSM.Power is 0) and offer.Name is 'MarketBatteryStorage' and offer.Power>0:
                         print 'reserved for grid'
                         reserved_for_grid=1
-                        EEx.PrimaryReserveStatus=0
+                        #EEx.PrimaryReserveStatus=0
                         
  #=====================================For Primary Reserve Settings===============================================#
 
                         
-#=================Grid reserve case when MarketBatteryStorage supplies electricity to grid======================================#
+#=================Grid reserve case when MarketBatteryStorage supplies/receives electricity to grid======================================#
                                      
             if reserved_for_grid is 1 and need.Name is 'CommonGrid':
                 if MarketBatteryStorage in needs:
@@ -827,7 +778,7 @@ while sec<=60:
                 print 'Offer Name is for MarketBatteryStorage is', offer.Name
          
                 
-#=================Grid reserve case when MarketBatteryStorage supplies electricity to grid======================================#
+#=================Grid reserve case when MarketBatteryStorage supplies/receives electricity to grid======================================#
 
                 
             print 'Offer',offer.Name, 'Offered Power',offer.Power,'Reserve status',reserved_for_grid
@@ -976,10 +927,10 @@ while sec<=60:
 #=========================To move to next offer to satisfy one need======================================#
             
     print 'End of iteration',t
-    if EEx.PrimaryReserveStatus is 1:
+    if EEx.PrimaryReserveStatus:
         print 'CHANGE'
         reserved_for_grid =1
-    elif EEx.PrimaryReserveStatus is 0:
+    else:
         reserved_for_grid=0
     
 
@@ -1026,7 +977,7 @@ while sec<=60:
     print "RESERVED",reserved_for_grid
 
     wb.save('DatawithProfitsExpectandActual.xlsx')   
-    if t is 5:break
+    if t is 4:break
 
 
 print VPP.ProfitNormal
