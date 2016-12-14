@@ -12,8 +12,9 @@ class VirtualPowerPlant:
         self.ActualProfit=ActualProfit
         
 class Household:  
-    def __init__(self,Name,ProfitFromPR,ProfitFromGridSupport,BuyingPrice,Profit,ActualProfit):
+    def __init__(self,Name,ProfitNormal,ProfitFromPR,ProfitFromGridSupport,BuyingPrice,Profit,ActualProfit):
         self.Name=Name
+        self.ProfitNormal=ProfitNormal
         self.ProfitFromPR=ProfitFromPR
         self.ProfitFromGridSupport=ProfitFromGridSupport
         self.BuyingPrice=BuyingPrice # To meet demand of StandardConsumingDevices and DSM

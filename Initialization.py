@@ -16,7 +16,7 @@ VPP=VirtualPowerPlant('VPP',3,29,21.6,0,0,0,0,0)
 #======================HouseHolds====================================#
 
 #(self,Name,ProfitFromPR,ProfitFromGridSupport,BuyingPrice,Profit)
-H1=Household('H1',0,0,29,0,0)
+H1=Household('H1',0,0,0,29,0,0)
 #print H1.Profit
 #H1.Profit=H1.ProfitFromPR+H1.ProfitFromGridSupport-H1.BuyingPrice
 #print H1.Profit
@@ -31,12 +31,12 @@ H1.StandardConsumingDevices=H1.StandardConsumingDevices('StandardConsumingDevice
 H1.DSM=H1.DSM('DSM',0,30,25)
 
 #(self,Name,Power,Price,rated_capacity_in_kWh,AgeingFactor,UsableCapacityInKWh,PercentageCurrentCapacity,CapacityForGrid,ChargingPrice,DischargingPrice,ProfitFromPR,ProfitFromGridSupport,ProfitNormal,Profit,ParticipationinPR)
-H1.MarketBatteryStorage=H1.MarketBatteryStorage('MarketBatteryStorage',250,21,250,1,250,50,0,18,26,0,0,0,0,0,0)
+H1.MarketBatteryStorage=H1.MarketBatteryStorage('MarketBatteryStorage',7,21,7,1,7,50,0,18,26,0,0,0,0,0,0)
 #print H1.MarketBatteryStorage.UsableCapacityInKWh
 #print H1.MarketBatteryStorage.Profit
 
 #(self,Name,Power,Price,ProfitForExcessPower,ProfitNormal,Profit)
-H1.MarketSolarGeneratingUnit=H1.MarketCogenerationUnit('MarketSolarGeneratingUnit',400,1,0,0,0,0)
+H1.MarketSolarGeneratingUnit=H1.MarketSolarGeneratingUnit('MarketSolarGeneratingUnit',400,1,0,0,0,0)
 
 #(self,Name,Power,Price,ProfitFromGridSupport,ProfitNormal,Profit)
 H1.MarketCogenerationUnit=H1.MarketCogenerationUnit('MarketCogenerationUnit',0,14,0,0,0,0)

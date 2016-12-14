@@ -628,7 +628,7 @@ while sec<=60:
         else:
             pass
 
-        wb = load_workbook(filename = 'DatawithProfitsClock.xlsx')
+        wb = load_workbook(filename = 'DatawithProfitsExpectandActual.xlsx')
         ws=wb.active
         MaxRows=ws.max_row-3
         MaxCols=ws.max_column-1
@@ -641,13 +641,13 @@ while sec<=60:
             print hour ,':', min, ':', sec
             col=2
             H1.MarketSolarGeneratingUnit.Power=sheet.cell(row=i,column=col).value
-            H1.MarketCogenerationUnit.Power=sheet.cell(row=i,column=col+4).value
-            CommonGrid1.Power=sheet.cell(row=i,column=col+8).value
-            H1.MarketBatteryStorage.Power=sheet.cell(row=i,column=col+12).value
-            H1.StandardConsumingDevices.Power=sheet.cell(row=i,column=col+19).value
-            H1.DSM.Power=sheet.cell(row=i,column=col+22).value
-            EEx.PrimaryReserveStatus=sheet.cell(row=i,column=col+27).value
-            VPP.BuyingPrice=sheet.cell(row=i,column=col+28).value
+            H1.MarketCogenerationUnit.Power=sheet.cell(row=i,column=col+5).value
+            CommonGrid1.Power=sheet.cell(row=i,column=col+10).value
+            H1.MarketBatteryStorage.Power=sheet.cell(row=i,column=col+15).value
+            H1.StandardConsumingDevices.Power=sheet.cell(row=i,column=col+23).value
+            H1.DSM.Power=sheet.cell(row=i,column=col+26).value
+            EEx.PrimaryReserveStatus=sheet.cell(row=i,column=col+33).value
+            VPP.BuyingPrice=sheet.cell(row=i,column=col+34).value
             print 'H1.MarketSolarGeneratingUnit.Power',H1.MarketSolarGeneratingUnit.Power          
             print 'H1.MarketCogenerationUnit.Power',H1.MarketCogenerationUnit.Power
             print 'CommonGrid1.Power',CommonGrid1.Power
@@ -658,11 +658,11 @@ while sec<=60:
             print 'EEX PR Status',EEx.PrimaryReserveStatus
             print 'EEX Selling Price/VPP Buying Price',VPP.BuyingPrice
             if t is 0:
-                H1.MarketBatteryStorage.Power=sheet.cell(row=i,column=col+12).value
-                H1.MarketBatteryStorage.PercentageCurrentCapacity=sheet.cell(row=i,column=col+15).value
+                H1.MarketBatteryStorage.Power=sheet.cell(row=i,column=col+15).value
+                H1.MarketBatteryStorage.PercentageCurrentCapacity=sheet.cell(row=i,column=col+18).value
             else:
-                H1.MarketBatteryStorage.Power=sheet.cell(row=i,column=col+12).value
-                H1.MarketBatteryStorage.PercentageCurrentCapacity=sheet.cell(row=i-1,column=col+16).value # Optimized value of % capacity
+                H1.MarketBatteryStorage.Power=sheet.cell(row=i,column=col+15).value
+                H1.MarketBatteryStorage.PercentageCurrentCapacity=sheet.cell(row=i-1,column=col+19).value # Optimized value of % capacity
             MarketBatteryStorage=H1.MarketBatteryStorage
             DSM=H1.DSM
             MarketCogenerationUnit=H1.MarketCogenerationUnit
@@ -682,18 +682,6 @@ while sec<=60:
     
     except:
         pass
-    #MarketSolarGeneratingUnit.Power=int(MarketSolarGeneratingUnit_Power[t])
-    #MarketCogenerationUnit.Power=int(MarketCogenerationUnitPower[t])
-    #StandardConsumingDevices.Power=int(StandardConsumingDevicesPower[t])
-    #DSM.Power=int(DSMPower[t])
-    #MarketBatteryStorage.Power=int(Battery_Power[t])
-    #EEx.PrimaryReserveStatus=int(Reserve_Status[t])
-    #CommonGrid1.Power=int(Common_Grid_Power[t])
-    #MarketBatteryStorage.PercentageCurrentCapacity=int(Battery_Capacity[t])
-    #if t is not 0: # To update the value of MarketBatteryStorage capacity after each interval 
-        #MarketBatteryStorage.PercentageCurrentCapacity=int(MarketBatteryNewCapacity[t-1])  
-        #print 'MarketBatteryStorage capacity',MarketBatteryStorage.PercentageCurrentCapacity
-    #MarketBatteryStorage.CapacityForGrid=MarketBatteryStorage.PercentageCurrentCapacity  # reference to determine how much MarketBatteryStorage should be discharged/charged while supporting the grid
     needs=([StandardConsumingDevices,DSM,MarketBatteryStorage,CommonGrid1]) 
     offers = ([MarketSolarGeneratingUnit,MarketCogenerationUnit,MarketBatteryStorage,CommonGrid1]) 
     sorting_needs_and_offers(needs,offers)
@@ -711,9 +699,9 @@ while sec<=60:
                 print 'A'
                 if ((MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)>(100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division) and MarketBatteryStorage.PercentageCurrentCapacity is not 100:
                     print DSM.Power*hours/division,StandardConsumingDevices.Power*hours/division,MarketSolarGeneratingUnit.Power*hours/division,MarketCogenerationUnit.Power*hours/division,((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division)
-                    H1.Profits=12.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)-((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division))
+                    H1.ProfitNormal=12.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)-((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division))
                     print 'Battery will be fully charged'        
-                    print H1.Profits, 'H1.Profits A'
+                    print H1.ProfitNormal, 'H1.Profits A'
                 else:
                     print 'No extra feed in'
                     pass
@@ -722,13 +710,13 @@ while sec<=60:
             elif (-(DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)+((MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division))<0.0:
                 if DSM.Price >=CommonGrid1.Price: 
                     print 'B'
-                    H1.Profits=30.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
+                    H1.ProfitNormal=30.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
                 elif DSM.Price<CommonGrid1.Price:
                     print 'C'                
-                    H1.Profits=30.0*(hours/division)*(-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
+                    H1.ProfitNormal=30.0*(hours/division)*(-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
                 print DSM.Power*hours/division,StandardConsumingDevices.Power*hours/division,MarketSolarGeneratingUnit.Power*hours/division,MarketCogenerationUnit.Power*hours/division,((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division)
                 print 'No extra feed in to grid'
-                print H1.Profits, 'H1.Profits'
+                print H1.ProfitNormal, 'H1.Profits'
                 
         elif MarketBatteryStorage in needs:
             print 'BAT in NEEDS'
@@ -737,17 +725,17 @@ while sec<=60:
                 if MarketBatteryStorage.PercentageCurrentCapacity is 0:
                     if DSM.Price >=CommonGrid1.Price: 
                         print 'A'
-                        H1.Profits=-30.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
+                        H1.ProfitNormal=-30.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
                     elif DSM.Price<CommonGrid1.Price:
                         print 'B'                
-                        H1.Profits=-30.0*(hours/division)*(-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
+                        H1.ProfitNormal=-30.0*(hours/division)*(-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division))
                     print DSM.Power*hours/division,StandardConsumingDevices.Power*hours/division,MarketSolarGeneratingUnit.Power*hours/division,MarketCogenerationUnit.Power*hours/division,((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division)
            
             elif (-(DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)-((100-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division))>0.0:  
                 print DSM.Power*hours/division,StandardConsumingDevices.Power*hours/division,MarketSolarGeneratingUnit.Power*hours/division,MarketCogenerationUnit.Power*hours/division,((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100.0*MarketBatteryStorage.UsableCapacityInKWh*hours/division)
-                H1.Profits=12.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)-((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100*MarketBatteryStorage.UsableCapacityInKWh*hours/division))
+                H1.ProfitNormal=12.0*(hours/division)*((-DSM.Power*hours/division)-(StandardConsumingDevices.Power*hours/division)+(MarketSolarGeneratingUnit.Power*hours/division)+(MarketCogenerationUnit.Power*hours/division)-((100.0-MarketBatteryStorage.PercentageCurrentCapacity)/100*MarketBatteryStorage.UsableCapacityInKWh*hours/division))
                 print 'Battery will BE fully charged'        
-                print H1.Profits, 'H1.Profits A'
+                print H1.ProfitNormal, 'H1.Profits A'
                 
             
                 
@@ -993,13 +981,18 @@ while sec<=60:
         reserved_for_grid =1
     elif EEx.PrimaryReserveStatus is 0:
         reserved_for_grid=0
-        
+    
 
-
-    MarketSolarGeneratingUnitProfits.append(MarketSolarGeneratingUnit.ProfitNormal)
-    MarketCogenerationUnitProfits.append(MarketCogenerationUnit.ProfitNormal)
-    MarketBatteryStorageProfits.append(MarketBatteryStorage.ProfitNormal)    
-    commonGridProfits.append(CommonGrid1.ProfitNormal)
+    MarketSolarGeneratingUnit.Profit=MarketSolarGeneratingUnit.ProfitNormal++MarketSolarGeneratingUnit.ProfitForExcessPower
+    MarketCogenerationUnit.Profit=MarketCogenerationUnit.ProfitNormal+MarketCogenerationUnit.ProfitFromGridSupport
+    MarketBatteryStorage.Profit=MarketBatteryStorage.ProfitFromGridSupport+MarketBatteryStorage.ProfitFromPR+MarketBatteryStorage.ProfitNormal
+    VPP.Profit=VPP.ProfitNormal+VPP.ProfitFromPR+VPP.ProfitFromGridSupport
+    H1.Profit=H1.ProfitFromPR+H1.ProfitFromGridSupport+H1.ProfitNormal
+    CommonGrid1.Profit=-CommonGrid1.CostForGridSupport-CommonGrid1.CostForPR+CommonGrid1.ProfitNormal
+    MarketSolarGeneratingUnitProfits.append(MarketSolarGeneratingUnit.Profit)
+    MarketCogenerationUnitProfits.append(MarketCogenerationUnit.Profit)
+    MarketBatteryStorageProfits.append(MarketBatteryStorage.Profit)    
+    commonGridProfits.append(CommonGrid1.Profit)
     MarketBatteryNewCapacity.append(MarketBatteryStorage.PercentageCurrentCapacity)
     MarketSolarGeneratingUnitNewPower.append(MarketSolarGeneratingUnit.Power)
     MarketCogenerationNewPower.append(MarketCogenerationUnit.Power)
@@ -1010,24 +1003,30 @@ while sec<=60:
     
     
     try:
-        print 'H1.Profits',H1.Profits
+        print 'H1.Profits',H1.Profit
     except:
         pass
     print 'Primary Reserve Status', EEx.PrimaryReserveStatus,'Reserved for Grid', reserved_for_grid
     
-    col=3
-    sheet.cell(row=i,column=col).value=MarketSolarGeneratingUnit.Power
-    sheet.cell(row=i,column=col+4).value=MarketCogenerationUnit.Power
-    sheet.cell(row=i,column=col+8).value=CommonGrid1.Power
-    sheet.cell(row=i,column=col+12).value=MarketBatteryStorage.Power
-    sheet.cell(row=i,column=col+15).value=MarketBatteryStorage.PercentageCurrentCapacity
-    sheet.cell(row=i,column=col+19).value=StandardConsumingDevices.Power
-    sheet.cell(row=i,column=col+22).value=DSM.Power
-    sheet.cell(row=i,column=col+28).value=reserved_for_grid
+    col=0
+    sheet.cell(row=i,column=col+3).value=MarketSolarGeneratingUnit.Power
+    sheet.cell(row=i,column=col+4).value=MarketSolarGeneratingUnit.Profit
+    sheet.cell(row=i,column=col+8).value=MarketCogenerationUnit.Power
+    sheet.cell(row=i,column=col+9).value=MarketCogenerationUnit.Profit
+    sheet.cell(row=i,column=col+13).value=CommonGrid1.Power
+    sheet.cell(row=i,column=col+14).value=CommonGrid1.Profit
+    sheet.cell(row=i,column=col+18).value=MarketBatteryStorage.Power
+    sheet.cell(row=i,column=col+21).value=MarketBatteryStorage.PercentageCurrentCapacity
+    sheet.cell(row=i,column=col+22).value=MarketBatteryStorage.Profit
+    sheet.cell(row=i,column=col+26).value=StandardConsumingDevices.Power
+    sheet.cell(row=i,column=col+29).value=DSM.Power
+    sheet.cell(row=i,column=col+31).value=H1.Profit
+    sheet.cell(row=i,column=col+33).value=VPP.Profit
+    sheet.cell(row=i,column=col+37).value=reserved_for_grid
     print "RESERVED",reserved_for_grid
 
-    wb.save('DatawithProfitsClock.xlsx')   
-    if t is x:break
+    wb.save('DatawithProfitsExpectandActual.xlsx')   
+    if t is 5:break
 
 
 print VPP.ProfitNormal
